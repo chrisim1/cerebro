@@ -1,0 +1,107 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}À propos — Cerebro{% endblock %}
+{% block page_title %}À propos / Vision{% endblock %}
+
+{% block content %}
+<!-- HERO -->
+<div class="about-hero">
+    <img src="{% static 'img/cerebro_logo.png' %}" alt="Cerebro Logo">
+    <h1>CEREBRO</h1>
+    <p class="tagline">Know where you fail</p>
+</div>
+
+<!-- POURQUOI CEREBRO -->
+<div class="card">
+    <div class="card-title" style="font-size:18px">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        Pourquoi Cerebro existe ?
+    </div>
+    <p style="color:var(--gray-light);line-height:1.8;font-size:14px;margin-bottom:16px">
+        Cerebro est né d'une constatation simple : trop d'étudiants échouent non pas par manque de capacité, mais par manque de méthode. Beaucoup révisent sans direction claire, sans savoir combien de temps consacrer à chaque matière, sans comprendre leur niveau de risque réel face aux examens.
+    </p>
+    <p style="color:var(--gray-light);line-height:1.8;font-size:14px;margin-bottom:16px">
+        Cerebro a été conçu pour transformer cette réalité. C'est un système d'analyse et d'optimisation des performances académiques pour les étudiants en <strong style="color:var(--blue-primary)">IGAF (Informatique de Gestion et Anglais des Affaires)</strong> à l'<strong style="color:var(--blue-primary)">Université Officielle de Bukavu (UOB)</strong>.
+    </p>
+    <p style="color:var(--gray-light);line-height:1.8;font-size:14px">
+        En analysant tes notes actuelles, tes notes cibles, le niveau de difficulté et l'urgence de chaque cours, Cerebro calcule précisément le temps que tu dois consacrer à chaque matière pour atteindre tes objectifs. Il ne s'agit pas de travailler plus, mais de travailler <em style="color:var(--blue-primary)">mieux</em>.
+    </p>
+</div>
+
+<!-- CE QUE FAIT CEREBRO -->
+<div class="grid-2">
+    <div class="card">
+        <div class="card-title">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path d="M12 20V10M18 20V4M6 20v-4"/></svg>
+            Ce que Cerebro analyse
+        </div>
+        <div style="display:flex;flex-direction:column;gap:10px">
+            {% for item in "12345"|make_list %}
+            <div class="rec-item">
+                <div class="rec-icon">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" width="14" height="14"><polyline points="20 6 9 17 4 12"/></svg>
+                </div>
+                <div class="rec-text">
+                    {% if forloop.counter == 1 %}Ton niveau actuel par rapport à tes objectifs{% endif %}
+                    {% if forloop.counter == 2 %}Le temps nécessaire pour combler l'écart entre ta note actuelle et ta cible{% endif %}
+                    {% if forloop.counter == 3 %}Le niveau de risque par cours : Critique, Élevé ou Stable{% endif %}
+                    {% if forloop.counter == 4 %}Un planning hebdomadaire du lundi au samedi optimisé par examen{% endif %}
+                    {% if forloop.counter == 5 %}Des recommandations personnalisées avec ton prénom{% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-title">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+            Notre Vision
+        </div>
+        <p style="color:var(--gray-light);line-height:1.8;font-size:14px;margin-bottom:16px">
+            Cerebro aspire à devenir le compagnon académique de référence pour chaque étudiant congolais. Dans un contexte où les ressources pédagogiques sont parfois limitées, l'intelligence peut faire la différence.
+        </p>
+        <p style="color:var(--gray-light);line-height:1.8;font-size:14px;margin-bottom:16px">
+            Notre ambition : aider chaque étudiant à <strong style="color:var(--white)">savoir où il échoue</strong>, à comprendre pourquoi, et à définir une stratégie concrète pour surmonter ses difficultés.
+        </p>
+        <div style="padding:16px;background:var(--blue-faint);border:1px solid rgba(30,144,255,0.2);border-radius:8px;text-align:center">
+            <div style="font-family:'Space Grotesk',sans-serif;font-size:20px;font-weight:700;color:var(--blue-primary);letter-spacing:1px">
+                "Know where you fail"
+            </div>
+            <div style="font-size:12px;color:var(--gray-text);margin-top:6px">La devise qui guide Cerebro</div>
+        </div>
+    </div>
+</div>
+
+<!-- PROGRAMME IGAF -->
+<div class="card">
+    <div class="card-title">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg>
+        Filière IGAF — Université Officielle de Bukavu
+    </div>
+    <div class="grid-2">
+        <div>
+            <div style="font-weight:600;color:var(--blue-primary);margin-bottom:8px">L1 — Première Année</div>
+            <div style="font-size:12px;color:var(--gray-text);margin-bottom:4px">Semestre 1</div>
+            <div style="font-size:13px;color:var(--gray-light);line-height:1.8">
+                Communication, Informatique, Comptabilité, Mathématiques, Algorithmes, Phonétique (30 crédits)
+            </div>
+            <div style="font-size:12px;color:var(--gray-text);margin-top:10px;margin-bottom:4px">Semestre 2</div>
+            <div style="font-size:13px;color:var(--gray-light);line-height:1.8">
+                Statistiques, Droit du travail, Systèmes informatiques, Langages de programmation, Web, Anglais, Grammaire (30 crédits)
+            </div>
+        </div>
+        <div>
+            <div style="font-weight:600;color:var(--blue-primary);margin-bottom:8px">L2 — Deuxième Année</div>
+            <div style="font-size:12px;color:var(--gray-text);margin-bottom:4px">Semestre 3</div>
+            <div style="font-size:13px;color:var(--gray-light);line-height:1.8">
+                Management, Algorithmes avancés, Programmation Web 2, Anglais des affaires, Mathématiques 2, Bases de données, Réseaux (30 crédits)
+            </div>
+            <div style="font-size:12px;color:var(--gray-text);margin-top:10px;margin-bottom:4px">Semestre 4</div>
+            <div style="font-size:13px;color:var(--gray-light);line-height:1.8">
+                Recherche Opérationnelle, BDD réparties, Administration réseaux, Génie Logiciel, Développement Mobile et Desktop, Anglais 2 (30 crédits)
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

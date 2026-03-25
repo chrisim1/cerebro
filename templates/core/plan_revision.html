@@ -1,0 +1,107 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Plan de Révision{% endblock %}
+{% block page_title %}Plan de Révision{% endblock %}
+
+{% block content %}
+<div class="grid-2">
+    <!-- FORMULAIRE -->
+    <div class="card">
+        <div class="card-title">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+            Analyser ma Situation
+        </div>
+
+        <div style="text-align:center;margin-bottom:20px">
+            <div class="plan-logo">
+                <img src="{% static 'img/cerebro_logo.png' %}" alt="Cerebro" style="width:50px;height:50px;filter:drop-shadow(0 0 15px rgba(30,144,255,0.5))">
+            </div>
+        </div>
+
+        <form method="post" action="{% url 'plan_revision' %}">
+            {% csrf_token %}
+            <div class="form-group">
+                <label class="form-label">{{ form.cours.label }}</label>
+                {{ form.cours }}
+            </div>
+            <div class="grid-2">
+                <div class="form-group">
+                    <label class="form-label">{{ form.note_actuelle.label }}</label>
+                    {{ form.note_actuelle }}
+                    <div class="form-hint">Sur 20</div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">{{ form.note_cible.label }}</label>
+                    {{ form.note_cible }}
+                    <div class="form-hint">Sur 20</div>
+                </div>
+            </div>
+            <div class="grid-2">
+                <div class="form-group">
+                    <label class="form-label">{{ form.difficulte.label }}</label>
+                    {{ form.difficulte }}
+                    <div class="form-hint">0 = très facile, 5 = très difficile</div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">{{ form.urgence.label }}</label>
+                    {{ form.urgence }}
+                    <div class="form-hint">0 = pas urgent, 5 = très urgent</div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">{{ form.heures_par_semaine.label }}</label>
+                {{ form.heures_par_semaine }}
+                <div class="form-hint">Heures totales disponibles par semaine (tous cours confondus)</div>
+            </div>
+            <button type="submit" class="btn btn-primary w-100" style="justify-content:center;margin-top:8px">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" width="15" height="15"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+                Analyser ma Situation
+            </button>
+        </form>
+    </div>
+
+    <!-- LISTE DES SESSIONS -->
+    <div class="card">
+        <div class="card-title">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/></svg>
+            Mes Analyses ({{ sessions.count }})
+        </div>
+        {% if sessions %}
+        {% for s in sessions %}
+        <div style="padding:14px;background:var(--dark-card2);border-radius:8px;margin-bottom:8px;border:1px solid var(--dark-border)">
+            <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px">
+                <div style="flex:1">
+                    <div style="font-weight:600;font-size:13px;color:var(--white)">{{ s.cours.intitule }}</div>
+                    <div style="font-size:11px;color:var(--gray-text);margin-top:3px">
+                        {{ s.cours.code }} • {{ s.cours.credits }} cr • {{ s.note_actuelle }}/20 → {{ s.note_cible }}/20
+                    </div>
+                    <div style="margin-top:6px;display:flex;gap:6px">
+                        {% with r=s.get_niveau_risque %}
+                        <span class="badge badge-{{ r }}">{% if r == 'critique' %}Critique{% elif r == 'eleve' %}Élevé{% else %}Stable{% endif %}</span>
+                        {% endwith %}
+                        <span style="font-size:10px;color:var(--gray-text);padding-top:2px">Score: {{ s.get_score_priorite }}</span>
+                    </div>
+                </div>
+                <div style="display:flex;gap:6px;flex-shrink:0">
+                    <a href="{% url 'plan_revision_detail' s.pk %}" class="btn btn-outline btn-sm">Voir</a>
+                    <a href="{% url 'telecharger_pdf_revision' s.pk %}" class="btn btn-outline btn-sm">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" width="12" height="12"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                        PDF
+                    </a>
+                    <form method="post" action="{% url 'supprimer_revision' s.pk %}" style="display:inline" onsubmit="return confirm('Supprimer cette analyse ?')">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger btn-sm">✕</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+        {% else %}
+        <div class="empty-state">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/></svg>
+            <p>Aucune analyse créée. Utilisez le formulaire pour analyser votre situation.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

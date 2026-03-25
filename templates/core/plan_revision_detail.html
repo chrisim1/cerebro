@@ -1,0 +1,143 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Analyse — {{ session.cours.intitule }}{% endblock %}
+{% block page_title %}Analyse de Révision{% endblock %}
+
+{% block content %}
+<!-- HEADER PLAN -->
+<div class="plan-header">
+    <div class="plan-logo">
+        <img src="{% static 'img/cerebro_logo.png' %}" alt="Cerebro">
+    </div>
+    <h2>{{ session.cours.intitule }}</h2>
+    <p class="cours-name">{{ session.cours.code }} • {{ session.cours.credits }} crédits • {{ session.cours.get_niveau_display }}</p>
+</div>
+
+<!-- STATS -->
+<div class="grid-4" style="margin-bottom:20px">
+    <div class="stat-card">
+        <div class="stat-label">Note actuelle</div>
+        <div class="stat-value">{{ session.note_actuelle }}<span style="font-size:14px;color:var(--gray-text)">/20</span></div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-label">Note cible</div>
+        <div class="stat-value" style="color:var(--success)">{{ session.note_cible }}<span style="font-size:14px;color:var(--gray-text)">/20</span></div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-label">Heures/semaine</div>
+        <div class="stat-value">{{ heures_semaine }}<span style="font-size:14px;color:var(--gray-text)">h</span></div>
+        <div class="stat-sub">Recommandées pour ce cours</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-label">Score de priorité</div>
+        <div class="stat-value">{{ score_priorite }}<span style="font-size:14px;color:var(--gray-text)">/100</span></div>
+        <div class="progress-bar">
+            <div class="progress-fill {% if score_priorite >= 60 %}danger{% elif score_priorite >= 35 %}warning{% else %}success{% endif %}" style="width:{{ score_priorite }}%"></div>
+        </div>
+    </div>
+</div>
+
+<div class="grid-2">
+    <!-- INDICATEUR DE RISQUE -->
+    <div class="card">
+        <div class="card-title">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            Indicateur de Risque
+        </div>
+        <div style="margin-bottom:16px">
+            <div style="display:flex;justify-content:space-between;margin-bottom:6px">
+                <span style="font-size:13px;color:var(--gray-light)">Niveau de risque</span>
+                <span class="badge badge-{{ niveau_risque }}">
+                    {% if niveau_risque == 'critique' %}Critique{% elif niveau_risque == 'eleve' %}Élevé{% else %}Stable{% endif %}
+                </span>
+            </div>
+            <div class="progress-bar" style="height:10px">
+                <div class="progress-fill {% if niveau_risque == 'critique' %}danger{% elif niveau_risque == 'eleve' %}warning{% else %}success{% endif %}" style="width:{{ score_priorite }}%"></div>
+            </div>
+            <div style="display:flex;justify-content:space-between;margin-top:4px;font-size:10px;color:var(--gray-text)">
+                <span>Stable</span><span>Élevé</span><span>Critique</span>
+            </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+            <div style="background:var(--dark-card2);border-radius:8px;padding:10px">
+                <div style="font-size:10px;color:var(--gray-text);text-transform:uppercase;letter-spacing:0.5px">Difficulté</div>
+                <div style="margin-top:6px">
+                    {% for i in "12345" %}
+                    <span style="display:inline-block;width:14px;height:14px;border-radius:3px;margin-right:3px;background:{% if forloop.counter <= session.difficulte %}var(--blue-primary){% else %}var(--dark-border2){% endif %}"></span>
+                    {% endfor %}
+                    <span style="font-size:11px;color:var(--gray-text);margin-left:4px">{{ session.difficulte }}/5</span>
+                </div>
+            </div>
+            <div style="background:var(--dark-card2);border-radius:8px;padding:10px">
+                <div style="font-size:10px;color:var(--gray-text);text-transform:uppercase;letter-spacing:0.5px">Urgence</div>
+                <div style="margin-top:6px">
+                    {% for i in "12345" %}
+                    <span style="display:inline-block;width:14px;height:14px;border-radius:3px;margin-right:3px;background:{% if forloop.counter <= session.urgence %}var(--danger){% else %}var(--dark-border2){% endif %}"></span>
+                    {% endfor %}
+                    <span style="font-size:11px;color:var(--gray-text);margin-left:4px">{{ session.urgence }}/5</span>
+                </div>
+            </div>
+            <div style="background:var(--dark-card2);border-radius:8px;padding:10px">
+                <div style="font-size:10px;color:var(--gray-text);text-transform:uppercase;letter-spacing:0.5px">Écart à combler</div>
+                <div style="font-size:18px;font-weight:700;color:{% if ecart >= 5 %}var(--danger){% elif ecart >= 3 %}var(--warning){% else %}var(--success){% endif %}">{{ ecart }} pts</div>
+            </div>
+            <div style="background:var(--dark-card2);border-radius:8px;padding:10px">
+                <div style="font-size:10px;color:var(--gray-text);text-transform:uppercase;letter-spacing:0.5px">Par jour</div>
+                <div style="font-size:18px;font-weight:700;color:var(--blue-primary)">{{ heures_quotidiennes }}h</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- RECOMMANDATIONS -->
+    <div class="card">
+        <div class="card-title">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+            Recommandations
+        </div>
+        {% for rec in recommandations %}
+        <div class="rec-item">
+            <div class="rec-icon">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" width="14" height="14"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+            </div>
+            <div class="rec-text">{{ rec }}</div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- PLANNING SEMAINE -->
+<div class="card">
+    <div class="card-title">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+        Planning Semaine (Lundi — Samedi)
+    </div>
+    <div class="timeline-grid">
+        {% for jour_plan in planning_semaine %}
+        <div class="timeline-day">
+            <div class="day-label">{{ jour_plan.jour }}</div>
+            <div class="timeline-item stable">
+                <div style="font-weight:600;margin-bottom:2px">{{ jour_plan.heures }}h</div>
+                <div style="font-size:9px;color:var(--gray-text)">{{ jour_plan.focus|truncatechars:30 }}</div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- ACTIONS -->
+<div style="display:flex;gap:12px;flex-wrap:wrap">
+    <a href="{% url 'telecharger_pdf_revision' session.pk %}" class="btn btn-primary">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" width="15" height="15"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Télécharger le PDF
+    </a>
+    <a href="{% url 'plan_revision' %}" class="btn btn-outline">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" width="15" height="15"><polyline points="15 18 9 12 15 6"/></svg>
+        Retour
+    </a>
+    <form method="post" action="{% url 'supprimer_revision' session.pk %}" style="display:inline" onsubmit="return confirm('Supprimer cette analyse ?')">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger">Supprimer</button>
+    </form>
+</div>
+{% endblock %}

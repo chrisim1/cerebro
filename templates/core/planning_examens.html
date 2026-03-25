@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Planning Examens{% endblock %}
+{% block page_title %}Planning Examens{% endblock %}
+
+{% block content %}
+<div class="grid-2">
+    <!-- FORMULAIRE -->
+    <div class="card">
+        <div class="card-title">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/><path d="M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01"/></svg>
+            Créer une Session d'Examens
+        </div>
+        <form method="post" action="{% url 'planning_examens' %}">
+            {% csrf_token %}
+            <div class="form-group">
+                <label class="form-label">{{ form.nom_session.label }}</label>
+                {{ form.nom_session }}
+                <div class="form-hint">Ex: Session de juin 2026</div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">{{ form.heures_par_semaine.label }}</label>
+                {{ form.heures_par_semaine }}
+                <div class="form-hint">Heures disponibles par semaine pour toutes les matières</div>
+            </div>
+            <button type="submit" class="btn btn-primary w-100" style="justify-content:center">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" width="15" height="15"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                Créer la session
+            </button>
+        </form>
+    </div>
+
+    <!-- MES SESSIONS -->
+    <div class="card">
+        <div class="card-title">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>
+            Mes Sessions ({{ sessions.count }})
+        </div>
+        {% if sessions %}
+        {% for session in sessions %}
+        <div style="padding:14px;background:var(--dark-card2);border-radius:8px;margin-bottom:8px;border:1px solid var(--dark-border)">
+            <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px">
+                <div style="flex:1">
+                    <div style="font-weight:600;font-size:13px;color:var(--white)">{{ session.nom_session }}</div>
+                    <div style="font-size:11px;color:var(--gray-text);margin-top:3px">
+                        {{ session.heures_par_semaine }}h/semaine •
+                        {{ session.cours_examens.count }} cours •
+                        Créée le {{ session.created_at|date:"d/m/Y" }}
+                    </div>
+                </div>
+                <div style="display:flex;gap:6px;flex-shrink:0">
+                    <a href="{% url 'ajouter_cours_examen' session.pk %}" class="btn btn-outline btn-sm">+ Cours</a>
+                    <a href="{% url 'detail_session_examen' session.pk %}" class="btn btn-outline btn-sm">Voir</a>
+                    <form method="post" action="{% url 'supprimer_session_examen' session.pk %}" style="display:inline" onsubmit="return confirm('Supprimer cette session ?')">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger btn-sm">✕</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+        {% else %}
+        <div class="empty-state">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+            <p>Aucune session créée. Planifiez vos examens dès maintenant.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
