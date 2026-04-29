@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Créateur — Cerebro{% endblock %}
+{% block page_title %}Créateur{% endblock %}
+
+{% block content %}
+{% if profil %}
+<div style="max-width:800px;margin:0 auto">
+    <!-- HERO CRÉATEUR -->
+    <div class="card" style="text-align:center;padding:40px;background:radial-gradient(ellipse at 50% 0%, rgba(30,144,255,0.1) 0%, transparent 60%)">
+        {% if profil.photo %}
+        <img src="{{ profil.photo.url }}" alt="{{ profil.nom_complet }}" class="createur-photo">
+        {% else %}
+        <div style="width:100px;height:100px;border-radius:50%;background:linear-gradient(135deg,var(--blue-primary),var(--blue-secondary));display:flex;align-items:center;justify-content:center;margin:0 auto;font-size:36px;font-weight:700;color:white;box-shadow:0 0 20px var(--blue-glow)">
+            {{ profil.nom_complet|first|upper }}
+        </div>
+        {% endif %}
+        <h2 style="font-family:'Space Grotesk',sans-serif;font-size:26px;font-weight:700;color:var(--white);margin-top:16px">{{ profil.nom_complet }}</h2>
+        {% if profil.titre %}
+        <div style="color:var(--blue-primary);font-size:14px;margin-top:6px">{{ profil.titre }}</div>
+        {% endif %}
+        <div style="display:flex;gap:12px;justify-content:center;margin-top:16px">
+            {% if profil.site_web %}
+            <a href="{{ profil.site_web }}" target="_blank" class="btn btn-outline btn-sm">Site web</a>
+            {% endif %}
+            {% if profil.github %}
+            <a href="{{ profil.github }}" target="_blank" class="btn btn-outline btn-sm">GitHub</a>
+            {% endif %}
+            {% if profil.linkedin %}
+            <a href="{{ profil.linkedin }}" target="_blank" class="btn btn-outline btn-sm">LinkedIn</a>
+            {% endif %}
+        </div>
+    </div>
+
+    {% if profil.description %}
+    <div class="card">
+        <div class="card-title">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            À propos
+        </div>
+        <p style="color:var(--gray-light);line-height:1.8;font-size:14px">{{ profil.description }}</p>
+    </div>
+    {% endif %}
+
+    <div class="grid-2">
+        {% if profil.get_competences_liste %}
+        <div class="card">
+            <div class="card-title">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                Compétences
+            </div>
+            <div>
+                {% for competence in profil.get_competences_liste %}
+                <span class="skill-tag">{{ competence }}</span>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        {% if profil.projet_cerebro_desc %}
+        <div class="card">
+            <div class="card-title">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
+                Projet Cerebro
+            </div>
+            <p style="color:var(--gray-light);line-height:1.8;font-size:13px">{{ profil.projet_cerebro_desc }}</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% else %}
+<div class="empty-state" style="max-width:500px;margin:80px auto">
+    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+    <p>Le profil du créateur n'est pas encore configuré.</p>
+    {% if user.is_staff %}
+    <a href="{% url 'createur_admin' %}" class="btn btn-primary">Configurer mon profil</a>
+    {% endif %}
+</div>
+{% endif %}
+{% endblock %}

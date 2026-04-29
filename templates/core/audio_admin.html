@@ -1,0 +1,104 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Gestion Audio{% endblock %}
+{% block page_title %}Gestion Audio — Présentation vocale{% endblock %}
+
+{% block content %}
+<div class="grid-2" style="align-items:start">
+
+    <!-- UPLOAD -->
+    <div class="card">
+        <div class="card-title">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            Uploader un nouvel audio
+        </div>
+        <p style="font-size:12px;color:var(--gray-text);margin-bottom:16px">
+            L'audio actif sera diffusé sur la page À propos et le tableau de bord. Formats acceptés : MP3, WAV, OGG, M4A.
+        </p>
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="form-group">
+                <label class="form-label">{{ form.titre.label }}</label>
+                {{ form.titre }}
+            </div>
+            <div class="form-group">
+                <label class="form-label">{{ form.audio_file.label }}</label>
+                {{ form.audio_file }}
+                <div class="form-hint">MP3, WAV, OGG, M4A recommandés</div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">{{ form.description.label }}</label>
+                {{ form.description }}
+                <div class="form-hint">Description ou transcription du contenu audio</div>
+            </div>
+            <div class="form-group" style="display:flex;align-items:center;gap:10px">
+                {{ form.is_active }}
+                <label class="form-label" style="margin-bottom:0">{{ form.is_active.label }}</label>
+            </div>
+            <button type="submit" class="btn btn-primary w-100" style="justify-content:center;margin-top:8px">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                Uploader cet audio
+            </button>
+        </form>
+    </div>
+
+    <!-- LISTE AUDIOS -->
+    <div class="card">
+        <div class="card-title">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+            Audios enregistrés ({{ audios|length }})
+        </div>
+
+        {% if audios %}
+        {% for audio in audios %}
+        <div style="background:var(--dark-card2);border-radius:8px;padding:14px;margin-bottom:10px;border:1px solid {% if audio.is_active %}var(--blue-primary){% else %}var(--dark-border){% endif %}">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+                <div>
+                    <div style="font-weight:600;font-size:13px;color:var(--white)">{{ audio.titre }}</div>
+                    <div style="font-size:11px;color:var(--gray-text);margin-top:2px">{{ audio.created_at|date:"d/m/Y à H:i" }}</div>
+                </div>
+                {% if audio.is_active %}
+                <span class="badge badge-stable">ACTIF</span>
+                {% else %}
+                <span class="badge" style="background:var(--dark-bg);color:var(--gray-text);border:1px solid var(--dark-border)">inactif</span>
+                {% endif %}
+            </div>
+
+            <audio controls style="width:100%;margin-bottom:10px;accent-color:var(--blue-primary)">
+                <source src="{{ audio.audio_file.url }}">
+                Votre navigateur ne supporte pas l'audio.
+            </audio>
+
+            {% if audio.description %}
+            <div style="font-size:12px;color:var(--gray-text);margin-bottom:10px;font-style:italic">{{ audio.description }}</div>
+            {% endif %}
+
+            <div style="display:flex;gap:8px">
+                {% if not audio.is_active %}
+                <form method="post" style="display:inline">
+                    {% csrf_token %}
+                    <input type="hidden" name="toggle_actif" value="{{ audio.pk }}">
+                    <button type="submit" class="btn btn-outline btn-sm" style="font-size:11px">
+                        Définir comme actif
+                    </button>
+                </form>
+                {% endif %}
+                <form method="post" style="display:inline" onsubmit="return confirm('Supprimer cet audio ?')">
+                    {% csrf_token %}
+                    <input type="hidden" name="supprimer" value="{{ audio.pk }}">
+                    <button type="submit" class="btn btn-sm" style="font-size:11px;background:rgba(231,76,60,0.15);color:var(--danger);border:1px solid rgba(231,76,60,0.3)">
+                        Supprimer
+                    </button>
+                </form>
+            </div>
+        </div>
+        {% endfor %}
+        {% else %}
+        <div class="empty-state" style="padding:32px">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5" width="40" height="40" style="color:var(--gray-text);margin-bottom:12px"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+            <p style="color:var(--gray-text)">Aucun audio enregistré. Uploadez votre première présentation vocale.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

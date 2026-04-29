@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+{% block title %}Ajouter un cours — {{ session.nom_session }}{% endblock %}
+{% block page_title %}Ajouter un Cours à la Session{% endblock %}
+
+{% block content %}
+<div style="max-width:600px;margin:0 auto">
+    <div class="card">
+        <div class="card-title">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+            Session : {{ session.nom_session }}
+        </div>
+        <div style="padding:10px;background:var(--dark-card2);border-radius:8px;margin-bottom:20px;font-size:13px;color:var(--gray-text)">
+            {{ session.heures_par_semaine }}h par semaine disponibles
+        </div>
+
+        <form method="post" action="{% url 'ajouter_cours_examen' session.pk %}">
+            {% csrf_token %}
+            <div class="form-group">
+                <label class="form-label">{{ form.cours.label }}</label>
+                {{ form.cours }}
+            </div>
+            <div class="form-group">
+                <label class="form-label">{{ form.date_examen.label }}</label>
+                {{ form.date_examen }}
+            </div>
+            <div class="grid-2">
+                <div class="form-group">
+                    <label class="form-label">{{ form.note_actuelle.label }}</label>
+                    {{ form.note_actuelle }}
+                </div>
+                <div class="form-group">
+                    <label class="form-label">{{ form.note_cible.label }}</label>
+                    {{ form.note_cible }}
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">{{ form.maitrise.label }}</label>
+                {{ form.maitrise }}
+                <div class="form-hint">0 = pas maîtrisé du tout, 5 = parfaitement maîtrisé</div>
+            </div>
+            <div style="display:flex;gap:10px">
+                <button type="submit" name="ajouter_autre" class="btn btn-outline">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" width="15" height="15"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                    Ajouter et continuer
+                </button>
+                <button type="submit" class="btn btn-primary">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" width="15" height="15"><polyline points="20 6 9 17 4 12"/></svg>
+                    Terminer
+                </button>
+            </div>
+        </form>
+    </div>
+    <div style="text-align:center;margin-top:12px">
+        <a href="{% url 'detail_session_examen' session.pk %}" class="btn btn-outline btn-sm">Voir la session complète</a>
+    </div>
+</div>
+{% endblock %}

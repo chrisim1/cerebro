@@ -1,0 +1,143 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Résultats Analyse Multi-Cours{% endblock %}
+{% block page_title %}Résultats de l'analyse{% endblock %}
+
+{% block content %}
+
+<!-- BARRE RÉSUMÉ -->
+<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px">
+    <div class="stat-card">
+        <div class="stat-label">Cours analysés</div>
+        <div class="stat-value">{{ sessions|length }}</div>
+        <div class="stat-sub">matières dans ce plan</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-label">Score moyen actuel</div>
+        <div class="stat-value">{{ score_global }}<span style="font-size:14px;color:var(--gray-text)">%</span></div>
+        <div class="progress-bar">
+            <div class="progress-fill {% if score_global < 40 %}danger{% elif score_global < 65 %}warning{% else %}success{% endif %}" style="width:{{ score_global }}%"></div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-label">Total heures/semaine</div>
+        <div class="stat-value">{{ total_heures_semaine }}<span style="font-size:14px;color:var(--gray-text)">h</span></div>
+        <div class="stat-sub">pour atteindre tous tes objectifs</div>
+    </div>
+</div>
+
+<!-- TABLEAU DE PRIORITÉS -->
+<div class="card">
+    <div class="card-title">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        Classement par priorité
+    </div>
+    <div class="table-responsive">
+    <table style="width:100%;border-collapse:collapse;min-width:600px">
+        <thead>
+            <tr style="background:var(--dark-card2);font-size:11px;text-transform:uppercase;letter-spacing:0.5px">
+                <th style="padding:10px 12px;text-align:left;color:var(--gray-text)">#</th>
+                <th style="padding:10px 12px;text-align:left;color:var(--gray-text)">Cours</th>
+                <th style="padding:10px 12px;text-align:center;color:var(--gray-text)">Actuelle</th>
+                <th style="padding:10px 12px;text-align:center;color:var(--gray-text)">Cible</th>
+                <th style="padding:10px 12px;text-align:center;color:var(--gray-text)">Écart</th>
+                <th style="padding:10px 12px;text-align:center;color:var(--gray-text)">H/sem</th>
+                <th style="padding:10px 12px;text-align:center;color:var(--gray-text)">Score</th>
+                <th style="padding:10px 12px;text-align:center;color:var(--gray-text)">Risque</th>
+                <th style="padding:10px 12px;text-align:center;color:var(--gray-text)">Détail</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for s in sessions %}
+        {% with r=s.get_niveau_risque score=s.get_score_priorite %}
+        <tr style="border-top:1px solid var(--dark-border);{% if forloop.counter == 1 %}background:rgba(30,144,255,0.05){% endif %}">
+            <td style="padding:12px;font-weight:700;color:{% if forloop.counter == 1 %}var(--blue-primary){% elif forloop.counter == 2 %}var(--gray-light){% else %}var(--gray-text){% endif %}">
+                {{ forloop.counter }}
+            </td>
+            <td style="padding:12px">
+                <div style="font-weight:600;font-size:13px;color:var(--white)">{{ s.cours.intitule|truncatechars:40 }}</div>
+                <div style="font-size:11px;color:var(--gray-text);margin-top:2px">{{ s.cours.code }} · {{ s.cours.credits }} cr · {{ s.cours.get_niveau_display }}</div>
+            </td>
+            <td style="padding:12px;text-align:center;color:var(--gray-light)">{{ s.note_actuelle }}/20</td>
+            <td style="padding:12px;text-align:center;color:var(--blue-primary)">{{ s.note_cible }}/20</td>
+            <td style="padding:12px;text-align:center;font-weight:600;color:{% if s.note_cible|floatformat:0 > s.note_actuelle|floatformat:0 %}var(--danger){% else %}var(--success){% endif %}">
+                +{{ s.note_cible|floatformat:1|add:"-"|add:s.note_actuelle|floatformat:1 }}
+            </td>
+            <td style="padding:12px;text-align:center;font-weight:600;color:var(--blue-primary)">{{ s.get_heures_recommandees_par_semaine }}h</td>
+            <td style="padding:12px;text-align:center">
+                <div style="font-weight:700;font-size:14px;color:{% if score >= 60 %}var(--danger){% elif score >= 35 %}var(--warning){% else %}var(--success){% endif %}">{{ score }}</div>
+                <div style="font-size:10px;color:var(--gray-text)">/100</div>
+            </td>
+            <td style="padding:12px;text-align:center">
+                <span class="badge badge-{{ r }}">
+                    {% if r == 'critique' %}Critique{% elif r == 'eleve' %}Élevé{% else %}Stable{% endif %}
+                </span>
+            </td>
+            <td style="padding:12px;text-align:center">
+                <a href="{% url 'plan_revision_detail' s.pk %}" class="btn btn-outline btn-sm" style="font-size:11px;padding:4px 10px">Voir</a>
+            </td>
+        </tr>
+        {% endwith %}
+        {% endfor %}
+        </tbody>
+    </table>
+    </div>
+</div>
+
+<!-- PLANNING HEBDOMADAIRE MULTI -->
+<div class="card">
+    <div class="card-title">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+        Planning hebdomadaire consolidé
+    </div>
+    <div class="timeline-grid">
+        {% for jour, entrees in planning_multi.items %}
+        <div style="background:var(--dark-card2);border-radius:8px;padding:12px;border:1px solid var(--dark-border)">
+            <div style="font-weight:700;font-size:12px;color:var(--blue-primary);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px">{{ jour }}</div>
+            {% if entrees %}
+                {% for e in entrees %}
+                <div style="background:var(--dark-bg);border-radius:6px;padding:8px;margin-bottom:6px;border-left:2px solid {% if e.risque == 'critique' %}var(--danger){% elif e.risque == 'eleve' %}var(--warning){% else %}var(--blue-primary){% endif %}">
+                    <div style="font-size:11px;font-weight:600;color:var(--white)">{{ e.cours|truncatechars:30 }}</div>
+                    <div style="font-size:10px;color:var(--gray-text);margin-top:2px">
+                        <span style="color:var(--blue-primary);font-weight:600">{{ e.heures }}h</span> de révision
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div style="font-size:12px;color:var(--gray-text);font-style:italic">Repos / libre</div>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- RECOMMANDATIONS -->
+<div class="card">
+    <div class="card-title">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+        Recommandations Cerebro
+    </div>
+    {% for rec in recommandations %}
+    <div style="display:flex;gap:10px;padding:10px 12px;background:var(--dark-card2);border-radius:8px;margin-bottom:8px;border-left:3px solid var(--blue-primary)">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" width="16" height="16" style="color:var(--blue-primary);flex-shrink:0;margin-top:2px"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        <p style="font-size:13px;color:var(--gray-light);line-height:1.6;margin:0">{{ rec }}</p>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- ACTIONS -->
+<div style="display:flex;gap:12px;flex-wrap:wrap">
+    <a href="{% url 'telecharger_pdf_multi' %}?ids={{ ids_str }}" class="btn btn-primary">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Télécharger PDF (analyse complète)
+    </a>
+    <a href="{% url 'plan_revision_multi' %}" class="btn btn-outline">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" width="14" height="14"><path d="M3 12a9 9 0 119 9"/><polyline points="3 12 3 6 9 6"/></svg>
+        Nouvelle analyse
+    </a>
+    <a href="{% url 'plan_revision' %}" class="btn btn-outline">
+        Cours individuel
+    </a>
+</div>
+
+{% endblock %}

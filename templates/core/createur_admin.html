@@ -1,0 +1,100 @@
+{% extends 'base.html' %}
+{% block title %}Mon Profil Créateur{% endblock %}
+{% block page_title %}Mon Profil Créateur — Admin{% endblock %}
+
+{% block content %}
+<div style="max-width:700px;margin:0 auto">
+
+    {% if messages %}
+    {% for message in messages %}
+    <div class="alert alert-{{ message.tags }}" style="margin-bottom:16px">{{ message }}</div>
+    {% endfor %}
+    {% endif %}
+
+    <!-- SIGNATURE BLOC SÉPARÉ EN PREMIER -->
+    <div class="card" style="border:1px solid var(--blue-primary);background:linear-gradient(135deg,var(--dark-card) 0%,rgba(30,144,255,0.06) 100%)">
+        <div class="card-title" style="color:var(--blue-primary)">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>
+            Signature manuscrite — Apparaît sur tous les PDFs
+        </div>
+        <p style="font-size:12px;color:var(--gray-text);margin-bottom:16px">
+            Uploadez une image de votre signature (PNG fond transparent recommandé, ou JPG fond blanc). Elle sera affichée automatiquement dans le pied de page de chaque PDF généré par Cerebro, à côté de votre nom.
+        </p>
+
+        {% if profil and profil.signature %}
+        <div style="margin-bottom:16px">
+            <div style="font-size:11px;color:var(--gray-text);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px">Signature actuelle</div>
+            <div style="background:var(--dark-card2);border:1px solid var(--border-color);border-radius:8px;padding:16px;display:inline-block">
+                <img src="{{ profil.signature.url }}" alt="Signature actuelle"
+                     style="max-width:220px;max-height:90px;object-fit:contain;display:block">
+            </div>
+            <div style="font-size:11px;color:var(--gray-text);margin-top:6px">
+                ✓ Signature active — visible sur tous vos PDFs
+            </div>
+        </div>
+        {% else %}
+        <div style="margin-bottom:16px;padding:14px;background:var(--dark-card2);border-radius:8px;border:1px dashed var(--border-color)">
+            <div style="font-size:12px;color:var(--gray-text);text-align:center">
+                Aucune signature uploadée — les PDFs affichent votre nom en texte
+            </div>
+        </div>
+        {% endif %}
+
+        <form method="post" action="{% url 'createur_admin' %}" enctype="multipart/form-data">
+            {% csrf_token %}
+            <input type="hidden" name="signature_only" value="1">
+            <div class="form-group">
+                <label class="form-label">Choisir une image de signature</label>
+                <input type="file" name="signature" accept="image/png,image/jpeg,image/jpg,image/gif" class="form-control">
+                <div class="form-hint">PNG avec fond transparent recommandé · Taille max recommandée : 600×200 px</div>
+            </div>
+            <button type="submit" class="btn btn-primary">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" width="15" height="15"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                Uploader la signature
+            </button>
+        </form>
+    </div>
+
+    <!-- PROFIL COMPLET -->
+    <div class="card">
+        <div class="card-title" style="font-size:16px">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+            Modifier mon profil public
+        </div>
+
+        {% if profil %}
+        <div style="padding:10px;background:var(--dark-card2);border-radius:8px;margin-bottom:20px;font-size:12px;color:var(--gray-text)">
+            Dernière mise à jour : {{ profil.updated_at|date:"d/m/Y à H:i" }}
+        </div>
+        {% endif %}
+
+        <form method="post" action="{% url 'createur_admin' %}" enctype="multipart/form-data">
+            {% csrf_token %}
+            {% for field in form %}
+            {% if field.name != 'signature' %}
+            <div class="form-group">
+                <label class="form-label">{{ field.label }}</label>
+                {{ field }}
+                {% if field.help_text %}
+                <div class="form-hint">{{ field.help_text }}</div>
+                {% endif %}
+                {% if field.errors %}
+                <div style="color:var(--danger);font-size:11px;margin-top:4px">{{ field.errors|join:", " }}</div>
+                {% endif %}
+            </div>
+            {% endif %}
+            {% endfor %}
+            <div style="display:flex;gap:12px;margin-top:8px">
+                <button type="submit" class="btn btn-primary">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" width="15" height="15"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                    Sauvegarder le profil
+                </button>
+                <a href="{% url 'createur' %}" class="btn btn-outline">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" width="15" height="15"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                    Voir la page publique
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

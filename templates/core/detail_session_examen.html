@@ -1,0 +1,140 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}{{ session.nom_session }}{% endblock %}
+{% block page_title %}{{ session.nom_session }}{% endblock %}
+
+{% block content %}
+<!-- STATS RAPIDES -->
+<div class="grid-4" style="margin-bottom:20px">
+    <div class="stat-card">
+        <div class="stat-label">Cours planifiés</div>
+        <div class="stat-value">{{ cours_examens.count }}</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-label">Heures disponibles</div>
+        <div class="stat-value">{{ total_heures_dispo }}<span style="font-size:14px;color:var(--gray-text)">h</span></div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-label">Heures recommandées</div>
+        <div class="stat-value">{{ total_heures_recommandees }}<span style="font-size:14px;color:var(--gray-text)">h</span></div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-label">Heures/semaine</div>
+        <div class="stat-value">{{ session.heures_par_semaine }}<span style="font-size:14px;color:var(--gray-text)">h</span></div>
+    </div>
+</div>
+
+<!-- CALENDRIER DES EXAMENS -->
+<div class="card">
+    <div class="card-title">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+        Calendrier des Examens
+    </div>
+    {% if cours_examens %}
+    <table class="cerebro-table">
+        <thead>
+            <tr>
+                <th>Cours</th>
+                <th>Date</th>
+                <th>J-</th>
+                <th>Note actuelle</th>
+                <th>Cible</th>
+                <th>Maîtrise</th>
+                <th>Risque</th>
+                <th>H/sem recommandées</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for ce in cours_examens %}
+            <tr>
+                <td style="color:var(--white);font-weight:500">{{ ce.cours.intitule|truncatechars:30 }}</td>
+                <td>{{ ce.date_examen|date:"d/m/Y" }}</td>
+                <td>
+                    <span style="font-weight:600;color:{% if ce.jours_restants <= 7 %}var(--danger){% elif ce.jours_restants <= 14 %}var(--warning){% else %}var(--blue-primary){% endif %}">
+                        J-{{ ce.jours_restants }}
+                    </span>
+                </td>
+                <td>{{ ce.note_actuelle }}/20</td>
+                <td>{{ ce.note_cible }}/20</td>
+                <td>{{ ce.maitrise }}/5</td>
+                <td>
+                    {% with r=ce.get_niveau_risque %}
+                    <span class="badge badge-{{ r }}">{% if r == 'critique' %}Critique{% elif r == 'eleve' %}Élevé{% else %}Stable{% endif %}</span>
+                    {% endwith %}
+                </td>
+                <td style="color:var(--blue-primary);font-weight:600">{{ ce.get_heures_par_semaine }}h</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div class="empty-state" style="padding:24px">
+        <p><a href="{% url 'ajouter_cours_examen' session.pk %}" style="color:var(--blue-primary)">Ajouter des cours à cette session</a></p>
+    </div>
+    {% endif %}
+</div>
+
+<!-- TIMELINE LUNDI-SAMEDI -->
+{% if cours_examens %}
+<div class="card">
+    <div class="card-title">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>
+        Planning Hebdomadaire — Lundi au Samedi
+    </div>
+    <div class="timeline-grid">
+        {% for jour, items in timeline.items %}
+        <div class="timeline-day">
+            <div class="day-label">{{ jour }}</div>
+            {% if items %}
+            {% for item in items %}
+            <div class="timeline-item {{ item.risque }}">
+                <div style="font-weight:600;font-size:10px">{{ item.heures }}h</div>
+                <div style="font-size:9px;color:var(--gray-light);margin-top:1px">{{ item.cours|truncatechars:20 }}</div>
+                <div style="font-size:9px;color:var(--gray-text);margin-top:1px">J-{{ item.jours_restants }}</div>
+            </div>
+            {% endfor %}
+            {% else %}
+            <div style="font-size:10px;color:var(--dark-border2);text-align:center;padding-top:8px">—</div>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- RECOMMANDATIONS -->
+<div class="card">
+    <div class="card-title">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+        Recommandations Personnalisées
+    </div>
+    {% for rec in recommandations %}
+    <div class="rec-item">
+        <div class="rec-icon">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" width="14" height="14"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+        </div>
+        <div class="rec-text">{{ rec }}</div>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<!-- ACTIONS -->
+<div style="display:flex;gap:12px;flex-wrap:wrap">
+    <a href="{% url 'ajouter_cours_examen' session.pk %}" class="btn btn-outline">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" width="15" height="15"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Ajouter un cours
+    </a>
+    <a href="{% url 'telecharger_pdf_examens' session.pk %}" class="btn btn-primary">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" width="15" height="15"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Télécharger PDF
+    </a>
+    <a href="{% url 'planning_examens' %}" class="btn btn-outline">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" width="15" height="15"><polyline points="15 18 9 12 15 6"/></svg>
+        Retour
+    </a>
+    <form method="post" action="{% url 'supprimer_session_examen' session.pk %}" style="display:inline" onsubmit="return confirm('Supprimer cette session et tous ses cours ?')">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger">Supprimer la session</button>
+    </form>
+</div>
+{% endblock %}

@@ -1,0 +1,212 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Analyse Multi-Cours{% endblock %}
+{% block page_title %}Analyse Multi-Cours{% endblock %}
+
+{% block content %}
+<div class="card" style="margin-bottom:0">
+    <div class="card-title" style="font-size:16px">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><path d="M9 12l2 2 4-4"/></svg>
+        Analyser plusieurs cours en une fois
+    </div>
+    <p style="color:var(--gray-text);font-size:13px;margin-bottom:20px">
+        Sélectionne tes cours du semestre avec tes paramètres. Cerebro calculera un plan de révision optimisé et priorisé pour chaque matière.
+    </p>
+
+    <form method="post" id="multiForm">
+        {% csrf_token %}
+        <input type="hidden" name="nb_cours" id="nb_cours" value="1">
+
+        <div id="courses-container">
+            <div class="course-row" data-index="0">
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+                    <div style="font-size:13px;font-weight:600;color:var(--blue-primary)">
+                        <span class="course-num">Cours 1</span>
+                    </div>
+                    <button type="button" class="btn-remove-course" onclick="removeCourse(this)" style="display:none;background:none;border:none;color:var(--danger);cursor:pointer;font-size:12px;padding:4px 8px">
+                        ✕ Retirer
+                    </button>
+                </div>
+                <div style="display:grid;grid-template-columns:2fr 1fr 1fr;gap:10px;margin-bottom:8px">
+                    <div class="form-group" style="margin-bottom:0">
+                        <label class="form-label">Cours *</label>
+                        <select name="cours_0" class="form-control" required>
+                            <option value="">-- Choisir un cours --</option>
+                            {% for niveau, cours_list in cours_par_niveau.items %}
+                            <optgroup label="{{ niveau }}">
+                                {% for c in cours_list %}
+                                <option value="{{ c.pk }}">{{ c.code }} — {{ c.intitule }} ({{ c.credits }} cr)</option>
+                                {% endfor %}
+                            </optgroup>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group" style="margin-bottom:0">
+                        <label class="form-label">Note actuelle /20 *</label>
+                        <input type="number" name="note_actuelle_0" class="form-control" step="0.5" min="0" max="20" placeholder="ex: 10" required>
+                    </div>
+                    <div class="form-group" style="margin-bottom:0">
+                        <label class="form-label">Note cible /20 *</label>
+                        <input type="number" name="note_cible_0" class="form-control" step="0.5" min="0" max="20" placeholder="ex: 14" required>
+                    </div>
+                </div>
+                <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">
+                    <div class="form-group" style="margin-bottom:0">
+                        <label class="form-label">Difficulté (0-5)</label>
+                        <input type="number" name="difficulte_0" class="form-control" min="0" max="5" value="3" placeholder="3">
+                        <div class="form-hint">0 = facile · 5 = très difficile</div>
+                    </div>
+                    <div class="form-group" style="margin-bottom:0">
+                        <label class="form-label">Urgence (0-5)</label>
+                        <input type="number" name="urgence_0" class="form-control" min="0" max="5" value="3" placeholder="3">
+                        <div class="form-hint">0 = pas urgent · 5 = très urgent</div>
+                    </div>
+                    <div class="form-group" style="margin-bottom:0">
+                        <label class="form-label">H disponibles/sem</label>
+                        <input type="number" name="heures_0" class="form-control" step="0.5" min="1" max="80" value="10" placeholder="10">
+                    </div>
+                </div>
+                <div style="border-bottom:1px solid var(--dark-border);margin:16px 0"></div>
+            </div>
+        </div>
+
+        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px">
+            <button type="button" onclick="addCourse()" class="btn btn-outline" style="border-style:dashed">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" width="14" height="14"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                Ajouter un cours
+            </button>
+            <button type="submit" class="btn btn-primary">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+                Lancer l'analyse
+            </button>
+        </div>
+    </form>
+</div>
+
+<div class="card">
+    <div class="card-title">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+        Guide de saisie
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+        <div>
+            <div style="font-size:12px;color:var(--gray-text);margin-bottom:6px;text-transform:uppercase;letter-spacing:0.5px">Difficulté</div>
+            <div style="font-size:12px;color:var(--gray-light);line-height:1.8">
+                <span style="color:var(--success)">0-1</span> Très facile / Maîtrisé<br>
+                <span style="color:var(--blue-primary)">2-3</span> Moyen / Normal<br>
+                <span style="color:var(--warning)">4</span> Difficile / Complexe<br>
+                <span style="color:var(--danger)">5</span> Très difficile / Redoutable
+            </div>
+        </div>
+        <div>
+            <div style="font-size:12px;color:var(--gray-text);margin-bottom:6px;text-transform:uppercase;letter-spacing:0.5px">Urgence</div>
+            <div style="font-size:12px;color:var(--gray-light);line-height:1.8">
+                <span style="color:var(--success)">0-1</span> Examen lointain<br>
+                <span style="color:var(--blue-primary)">2-3</span> Examen dans quelques semaines<br>
+                <span style="color:var(--warning)">4</span> Examen très proche<br>
+                <span style="color:var(--danger)">5</span> Examen imminent / cette semaine
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+let nbCours = 1;
+const coursOptions = `{% for niveau, cours_list in cours_par_niveau.items %}<optgroup label="{{ niveau }}">{% for c in cours_list %}<option value="{{ c.pk }}">{{ c.code }} — {{ c.intitule|truncatechars:50 }} ({{ c.credits }} cr)</option>{% endfor %}</optgroup>{% endfor %}`;
+
+function addCourse() {
+    const idx = nbCours;
+    const container = document.getElementById('courses-container');
+    const div = document.createElement('div');
+    div.className = 'course-row';
+    div.dataset.index = idx;
+    div.innerHTML = `
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+            <div style="font-size:13px;font-weight:600;color:var(--blue-primary)"><span class="course-num">Cours ${idx+1}</span></div>
+            <button type="button" class="btn-remove-course" onclick="removeCourse(this)" style="background:none;border:none;color:var(--danger);cursor:pointer;font-size:12px;padding:4px 8px">✕ Retirer</button>
+        </div>
+        <div style="display:grid;grid-template-columns:2fr 1fr 1fr;gap:10px;margin-bottom:8px">
+            <div class="form-group" style="margin-bottom:0">
+                <label class="form-label">Cours *</label>
+                <select name="cours_${idx}" class="form-control" required>
+                    <option value="">-- Choisir un cours --</option>
+                    ${coursOptions}
+                </select>
+            </div>
+            <div class="form-group" style="margin-bottom:0">
+                <label class="form-label">Note actuelle /20 *</label>
+                <input type="number" name="note_actuelle_${idx}" class="form-control" step="0.5" min="0" max="20" placeholder="ex: 10" required>
+            </div>
+            <div class="form-group" style="margin-bottom:0">
+                <label class="form-label">Note cible /20 *</label>
+                <input type="number" name="note_cible_${idx}" class="form-control" step="0.5" min="0" max="20" placeholder="ex: 14" required>
+            </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">
+            <div class="form-group" style="margin-bottom:0">
+                <label class="form-label">Difficulté (0-5)</label>
+                <input type="number" name="difficulte_${idx}" class="form-control" min="0" max="5" value="3">
+                <div class="form-hint">0 = facile · 5 = très difficile</div>
+            </div>
+            <div class="form-group" style="margin-bottom:0">
+                <label class="form-label">Urgence (0-5)</label>
+                <input type="number" name="urgence_${idx}" class="form-control" min="0" max="5" value="3">
+                <div class="form-hint">0 = pas urgent · 5 = très urgent</div>
+            </div>
+            <div class="form-group" style="margin-bottom:0">
+                <label class="form-label">H disponibles/sem</label>
+                <input type="number" name="heures_${idx}" class="form-control" step="0.5" min="1" max="80" value="10">
+            </div>
+        </div>
+        <div style="border-bottom:1px solid var(--dark-border);margin:16px 0"></div>
+    `;
+    container.appendChild(div);
+    nbCours++;
+    document.getElementById('nb_cours').value = nbCours;
+    updateRemoveButtons();
+    updateCourseNumbers();
+}
+
+function removeCourse(btn) {
+    const row = btn.closest('.course-row');
+    row.remove();
+    nbCours--;
+    document.getElementById('nb_cours').value = nbCours;
+    reindexCourses();
+    updateRemoveButtons();
+    updateCourseNumbers();
+}
+
+function updateRemoveButtons() {
+    const rows = document.querySelectorAll('.course-row');
+    rows.forEach((row, i) => {
+        const btn = row.querySelector('.btn-remove-course');
+        if (btn) btn.style.display = rows.length > 1 ? 'inline-block' : 'none';
+    });
+}
+
+function updateCourseNumbers() {
+    const rows = document.querySelectorAll('.course-row');
+    rows.forEach((row, i) => {
+        const span = row.querySelector('.course-num');
+        if (span) span.textContent = `Cours ${i+1}`;
+    });
+}
+
+function reindexCourses() {
+    const rows = document.querySelectorAll('.course-row');
+    rows.forEach((row, i) => {
+        row.dataset.index = i;
+        row.querySelectorAll('[name]').forEach(el => {
+            const name = el.getAttribute('name');
+            const newName = name.replace(/_\d+$/, `_${i}`);
+            el.setAttribute('name', newName);
+        });
+    });
+    nbCours = rows.length;
+    document.getElementById('nb_cours').value = nbCours;
+}
+</script>
+{% endblock %}
+{% endblock %}
