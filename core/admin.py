@@ -91,5 +91,6 @@ class CreateurProfilAdmin(admin.ModelAdmin):
 
 
 admin.site.site_header = 'CEREBRO — Administration'
-admin.site.site_title = 'Cerebro Admin'
-admin.site.index_title = 'Tableau de bord administrateur'
+admin.site.site_title = 'Cerebro Gestion'
+admin.site.index_title = 'Darshboard Createur'
+
