@@ -16,11 +16,15 @@ CEREBRO_CARD = colors.HexColor('#0f0f1a')
 CEREBRO_CARD2 = colors.HexColor('#141424')
 CEREBRO_BORDER = colors.HexColor('#1e1e35')
 CEREBRO_WHITE = colors.HexColor('#ffffff')
-CEREBRO_GRAY_TEXT = colors.HexColor('#9999bb')
+CEREBRO_GRAY_TEXT = colors.HexColor('#68758a')
 CEREBRO_RED = colors.HexColor('#e74c3c')
 CEREBRO_ORANGE = colors.HexColor('#f39c12')
 CEREBRO_GREEN = colors.HexColor('#2ecc71')
 CEREBRO_LIGHT_BLUE = colors.HexColor('#4da6ff')
+CEREBRO_TEXT = colors.HexColor('#253047')
+CEREBRO_TABLE_ALT = colors.HexColor('#f3f7fc')
+CEREBRO_TABLE_LABEL = colors.HexColor('#eaf1fb')
+CEREBRO_TABLE_BORDER = colors.HexColor('#d7e0ec')
 
 
 def get_logo_path():
@@ -47,6 +51,21 @@ def _build_styles():
         spaceAfter=0,
     ))
     styles.add(ParagraphStyle(
+        name='CerebroHeaderMeta',
+        fontSize=9,
+        fontName='Helvetica',
+        textColor=CEREBRO_WHITE,
+        spaceAfter=4,
+        leading=14,
+    ))
+    styles.add(ParagraphStyle(
+        name='CerebroHeaderSmall',
+        fontSize=8,
+        fontName='Helvetica',
+        textColor=colors.HexColor('#b7c1d8'),
+        spaceAfter=2,
+    ))
+    styles.add(ParagraphStyle(
         name='CerebroSection',
         fontSize=11,
         fontName='Helvetica-Bold',
@@ -59,7 +78,7 @@ def _build_styles():
         name='CerebroBody',
         fontSize=9,
         fontName='Helvetica',
-        textColor=CEREBRO_WHITE,
+        textColor=CEREBRO_TEXT,
         spaceAfter=4,
         leading=14,
     ))
@@ -74,7 +93,22 @@ def _build_styles():
         name='CerebroCenter',
         fontSize=9,
         fontName='Helvetica',
-        textColor=CEREBRO_WHITE,
+        textColor=CEREBRO_TEXT,
+        alignment=TA_CENTER,
+    ))
+    styles.add(ParagraphStyle(
+        name='CerebroTableBody',
+        fontSize=9,
+        fontName='Helvetica',
+        textColor=CEREBRO_TEXT,
+        spaceAfter=4,
+        leading=14,
+    ))
+    styles.add(ParagraphStyle(
+        name='CerebroTableCenter',
+        fontSize=9,
+        fontName='Helvetica',
+        textColor=CEREBRO_TEXT,
         alignment=TA_CENTER,
     ))
 
@@ -99,8 +133,8 @@ def _add_page_header(elements, styles, titre_doc, user_name, date_gen):
                                        ('TOPPADDING', (0,0), (-1,-1), 0),
                                        ('BOTTOMPADDING', (0,0), (-1,-1), 2)]))
 
-    user_para = Paragraph(f'<font color="#9999bb">Étudiant :</font> <b>{user_name}</b>', styles['CerebroBody'])
-    date_para = Paragraph(f'<font color="#9999bb">Généré le :</font> {date_gen}', styles['CerebroSmall'])
+    user_para = Paragraph(f'<font color="#b7c1d8">Étudiant :</font> <b>{user_name}</b>', styles['CerebroHeaderMeta'])
+    date_para = Paragraph(f'<font color="#b7c1d8">Généré le :</font> {date_gen}', styles['CerebroHeaderSmall'])
     header_right2_data = [[user_para], [date_para]]
     header_right2 = Table(header_right2_data, colWidths=[6*cm])
     header_right2.setStyle(TableStyle([('LEFTPADDING', (0,0), (-1,-1), 0),
@@ -125,7 +159,7 @@ def _add_page_header(elements, styles, titre_doc, user_name, date_gen):
 
     doc_title = Paragraph(f'<b>{titre_doc}</b>', ParagraphStyle(
         'DocTitle', fontSize=13, fontName='Helvetica-Bold',
-        textColor=CEREBRO_WHITE, spaceAfter=4
+        textColor=CEREBRO_TEXT, spaceAfter=4
     ))
     elements.append(doc_title)
     elements.append(Spacer(1, 0.3*cm))
@@ -269,18 +303,18 @@ def generer_pdf_revision(session, planning, recommandations):
     ]
     info_table = Table(info_data, colWidths=[4*cm, 5.5*cm, 4*cm, 4.5*cm])
     info_table.setStyle(TableStyle([
-        ('BACKGROUND', (0, 0), (0, -1), CEREBRO_CARD),
-        ('BACKGROUND', (2, 0), (2, -1), CEREBRO_CARD),
-        ('BACKGROUND', (1, 0), (1, -1), CEREBRO_CARD2),
-        ('BACKGROUND', (3, 0), (3, -1), CEREBRO_CARD2),
-        ('TEXTCOLOR', (0, 0), (-1, -1), CEREBRO_WHITE),
-        ('TEXTCOLOR', (0, 0), (0, -1), CEREBRO_GRAY_TEXT),
-        ('TEXTCOLOR', (2, 0), (2, -1), CEREBRO_GRAY_TEXT),
+        ('BACKGROUND', (0, 0), (0, -1), CEREBRO_TABLE_LABEL),
+        ('BACKGROUND', (2, 0), (2, -1), CEREBRO_TABLE_LABEL),
+        ('BACKGROUND', (1, 0), (1, -1), CEREBRO_WHITE),
+        ('BACKGROUND', (3, 0), (3, -1), CEREBRO_WHITE),
+        ('TEXTCOLOR', (0, 0), (-1, -1), CEREBRO_TEXT),
+        ('TEXTCOLOR', (0, 0), (0, -1), CEREBRO_BLUE),
+        ('TEXTCOLOR', (2, 0), (2, -1), CEREBRO_BLUE),
         ('FONTNAME', (0, 0), (0, -1), 'Helvetica-Bold'),
         ('FONTNAME', (2, 0), (2, -1), 'Helvetica-Bold'),
         ('FONTSIZE', (0, 0), (-1, -1), 9),
         ('PADDING', (0, 0), (-1, -1), 7),
-        ('GRID', (0, 0), (-1, -1), 0.5, CEREBRO_BORDER),
+        ('GRID', (0, 0), (-1, -1), 0.5, CEREBRO_TABLE_BORDER),
     ]))
     elements.append(info_table)
     elements.append(Spacer(1, 0.4*cm))
@@ -292,10 +326,10 @@ def generer_pdf_revision(session, planning, recommandations):
     ]]
     risque_table = Table(risque_data, colWidths=[6*cm, 6*cm, 6*cm])
     risque_table.setStyle(TableStyle([
-        ('BACKGROUND', (0, 0), (-1, -1), CEREBRO_NAVY),
-        ('TEXTCOLOR', (0, 0), (-1, -1), CEREBRO_WHITE),
+        ('BACKGROUND', (0, 0), (-1, -1), CEREBRO_TABLE_LABEL),
+        ('TEXTCOLOR', (0, 0), (-1, -1), CEREBRO_TEXT),
         ('PADDING', (0, 0), (-1, -1), 8),
-        ('GRID', (0, 0), (-1, -1), 1, CEREBRO_BLUE),
+        ('GRID', (0, 0), (-1, -1), 0.8, CEREBRO_TABLE_BORDER),
         ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
         ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
     ]))
@@ -306,10 +340,10 @@ def generer_pdf_revision(session, planning, recommandations):
     plan_data = [['Jour', 'Matière', 'Durée', 'Focus pédagogique']]
     for p in planning:
         plan_data.append([
-            Paragraph(f'<b>{p["jour"]}</b>', styles['CerebroBody']),
-            Paragraph(p['cours'][:35], styles['CerebroBody']),
-            Paragraph(f'<b>{p["heures"]}h</b>', styles['CerebroCenter']),
-            Paragraph(p['focus'], styles['CerebroBody']),
+            Paragraph(f'<b>{p["jour"]}</b>', styles['CerebroTableBody']),
+            Paragraph(p['cours'][:35], styles['CerebroTableBody']),
+            Paragraph(f'<b>{p["heures"]}h</b>', styles['CerebroTableCenter']),
+            Paragraph(p['focus'], styles['CerebroTableBody']),
         ])
     plan_table = Table(plan_data, colWidths=[2.2*cm, 5*cm, 1.8*cm, 9*cm])
     plan_table.setStyle(TableStyle([
@@ -317,11 +351,11 @@ def generer_pdf_revision(session, planning, recommandations):
         ('TEXTCOLOR', (0, 0), (-1, 0), CEREBRO_WHITE),
         ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
         ('FONTSIZE', (0, 0), (-1, 0), 9),
-        ('ROWBACKGROUNDS', (0, 1), (-1, -1), [CEREBRO_CARD2, CEREBRO_CARD]),
-        ('TEXTCOLOR', (0, 1), (-1, -1), CEREBRO_WHITE),
+        ('ROWBACKGROUNDS', (0, 1), (-1, -1), [CEREBRO_WHITE, CEREBRO_TABLE_ALT]),
+        ('TEXTCOLOR', (0, 1), (-1, -1), CEREBRO_TEXT),
         ('FONTSIZE', (0, 1), (-1, -1), 8),
         ('PADDING', (0, 0), (-1, -1), 6),
-        ('GRID', (0, 0), (-1, -1), 0.3, CEREBRO_BORDER),
+        ('GRID', (0, 0), (-1, -1), 0.3, CEREBRO_TABLE_BORDER),
         ('ALIGN', (2, 0), (2, -1), 'CENTER'),
         ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
     ]))
@@ -367,14 +401,14 @@ def generer_pdf_multi_revision(user, sessions, planning_multi, recommandations):
         color_r, label_r = _risque_style(s.get_niveau_risque())
         prio_data.append([
             str(i),
-            Paragraph(s.cours.intitule[:28], styles['CerebroBody']),
+            Paragraph(s.cours.intitule[:28], styles['CerebroTableBody']),
             str(s.cours.credits),
             f"{s.note_actuelle}/20",
             f"{s.note_cible}/20",
             f"{s.difficulte}/5",
             f"{s.get_heures_recommandees_par_semaine()}h",
             f"{s.get_score_priorite()}",
-            Paragraph(f'<font color="#{color_r.hexval()[2:]}"><b>{label_r}</b></font>', styles['CerebroBody']),
+            Paragraph(f'<font color="#{color_r.hexval()[2:]}"><b>{label_r}</b></font>', styles['CerebroTableBody']),
         ])
 
     prio_table = Table(prio_data, colWidths=[0.6*cm, 4.5*cm, 1.2*cm, 1.6*cm, 1.2*cm, 1.6*cm, 1.2*cm, 1.2*cm, 2*cm])
@@ -383,11 +417,11 @@ def generer_pdf_multi_revision(user, sessions, planning_multi, recommandations):
         ('TEXTCOLOR', (0, 0), (-1, 0), CEREBRO_WHITE),
         ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
         ('FONTSIZE', (0, 0), (-1, 0), 8),
-        ('ROWBACKGROUNDS', (0, 1), (-1, -1), [CEREBRO_CARD2, CEREBRO_CARD]),
-        ('TEXTCOLOR', (0, 1), (-1, -1), CEREBRO_WHITE),
+        ('ROWBACKGROUNDS', (0, 1), (-1, -1), [CEREBRO_WHITE, CEREBRO_TABLE_ALT]),
+        ('TEXTCOLOR', (0, 1), (-1, -1), CEREBRO_TEXT),
         ('FONTSIZE', (0, 1), (-1, -1), 7.5),
         ('PADDING', (0, 0), (-1, -1), 5),
-        ('GRID', (0, 0), (-1, -1), 0.3, CEREBRO_BORDER),
+        ('GRID', (0, 0), (-1, -1), 0.3, CEREBRO_TABLE_BORDER),
         ('ALIGN', (0, 0), (0, -1), 'CENTER'),
         ('ALIGN', (2, 0), (-1, -1), 'CENTER'),
         ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
@@ -405,19 +439,19 @@ def generer_pdf_multi_revision(user, sessions, planning_multi, recommandations):
         else:
             contenu = '—'
         timeline_data.append([
-            Paragraph(f'<b>{jour}</b>', styles['CerebroBody']),
-            Paragraph(contenu.replace('\n', '<br/>'), styles['CerebroBody']),
+            Paragraph(f'<b>{jour}</b>', styles['CerebroTableBody']),
+            Paragraph(contenu.replace('\n', '<br/>'), styles['CerebroTableBody']),
         ])
     timeline_table = Table(timeline_data, colWidths=[3*cm, 15*cm])
     timeline_table.setStyle(TableStyle([
         ('BACKGROUND', (0, 0), (-1, 0), CEREBRO_BLUE),
         ('TEXTCOLOR', (0, 0), (-1, 0), CEREBRO_WHITE),
         ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-        ('ROWBACKGROUNDS', (0, 1), (-1, -1), [CEREBRO_CARD2, CEREBRO_CARD]),
-        ('TEXTCOLOR', (0, 1), (-1, -1), CEREBRO_WHITE),
+        ('ROWBACKGROUNDS', (0, 1), (-1, -1), [CEREBRO_WHITE, CEREBRO_TABLE_ALT]),
+        ('TEXTCOLOR', (0, 1), (-1, -1), CEREBRO_TEXT),
         ('FONTSIZE', (0, 0), (-1, -1), 8.5),
         ('PADDING', (0, 0), (-1, -1), 6),
-        ('GRID', (0, 0), (-1, -1), 0.3, CEREBRO_BORDER),
+        ('GRID', (0, 0), (-1, -1), 0.3, CEREBRO_TABLE_BORDER),
         ('VALIGN', (0, 0), (-1, -1), 'TOP'),
     ]))
     elements.append(timeline_table)
@@ -460,18 +494,18 @@ def generer_pdf_examens(session, cours_examens, timeline, recommandations):
     ]
     meta_table = Table(meta_data, colWidths=[4*cm, 6*cm, 4*cm, 4*cm])
     meta_table.setStyle(TableStyle([
-        ('BACKGROUND', (0, 0), (0, -1), CEREBRO_CARD),
-        ('BACKGROUND', (2, 0), (2, -1), CEREBRO_CARD),
-        ('BACKGROUND', (1, 0), (1, -1), CEREBRO_CARD2),
-        ('BACKGROUND', (3, 0), (3, -1), CEREBRO_CARD2),
-        ('TEXTCOLOR', (0, 0), (-1, -1), CEREBRO_WHITE),
-        ('TEXTCOLOR', (0, 0), (0, -1), CEREBRO_GRAY_TEXT),
-        ('TEXTCOLOR', (2, 0), (2, -1), CEREBRO_GRAY_TEXT),
+        ('BACKGROUND', (0, 0), (0, -1), CEREBRO_TABLE_LABEL),
+        ('BACKGROUND', (2, 0), (2, -1), CEREBRO_TABLE_LABEL),
+        ('BACKGROUND', (1, 0), (1, -1), CEREBRO_WHITE),
+        ('BACKGROUND', (3, 0), (3, -1), CEREBRO_WHITE),
+        ('TEXTCOLOR', (0, 0), (-1, -1), CEREBRO_TEXT),
+        ('TEXTCOLOR', (0, 0), (0, -1), CEREBRO_BLUE),
+        ('TEXTCOLOR', (2, 0), (2, -1), CEREBRO_BLUE),
         ('FONTNAME', (0, 0), (0, -1), 'Helvetica-Bold'),
         ('FONTNAME', (2, 0), (2, -1), 'Helvetica-Bold'),
         ('FONTSIZE', (0, 0), (-1, -1), 9),
         ('PADDING', (0, 0), (-1, -1), 7),
-        ('GRID', (0, 0), (-1, -1), 0.5, CEREBRO_BORDER),
+        ('GRID', (0, 0), (-1, -1), 0.5, CEREBRO_TABLE_BORDER),
     ]))
     elements.append(meta_table)
     elements.append(Spacer(1, 0.4*cm))
@@ -482,14 +516,14 @@ def generer_pdf_examens(session, cours_examens, timeline, recommandations):
     for ce in cours_examens:
         color_r, label_r = _risque_style(ce.get_niveau_risque())
         exam_rows.append([
-            Paragraph(ce.cours.intitule[:28], styles['CerebroBody']),
+            Paragraph(ce.cours.intitule[:28], styles['CerebroTableBody']),
             ce.date_examen.strftime('%d/%m/%Y'),
             f"J-{ce.jours_restants()}",
             f"{ce.note_actuelle}/20",
             f"{ce.note_cible}/20",
             f"{ce.maitrise}/5",
             f"{ce.get_heures_par_semaine()}h",
-            Paragraph(f'<font color="#{color_r.hexval()[2:]}"><b>{label_r}</b></font>', styles['CerebroBody']),
+            Paragraph(f'<font color="#{color_r.hexval()[2:]}"><b>{label_r}</b></font>', styles['CerebroTableBody']),
         ])
 
     col_widths = [4.5*cm, 2.3*cm, 1.8*cm, 1.6*cm, 1.5*cm, 1.8*cm, 1.5*cm, 2*cm]
@@ -499,11 +533,11 @@ def generer_pdf_examens(session, cours_examens, timeline, recommandations):
         ('TEXTCOLOR', (0, 0), (-1, 0), CEREBRO_WHITE),
         ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
         ('FONTSIZE', (0, 0), (-1, 0), 8),
-        ('ROWBACKGROUNDS', (0, 1), (-1, -1), [CEREBRO_CARD2, CEREBRO_CARD]),
-        ('TEXTCOLOR', (0, 1), (-1, -1), CEREBRO_WHITE),
+        ('ROWBACKGROUNDS', (0, 1), (-1, -1), [CEREBRO_WHITE, CEREBRO_TABLE_ALT]),
+        ('TEXTCOLOR', (0, 1), (-1, -1), CEREBRO_TEXT),
         ('FONTSIZE', (0, 1), (-1, -1), 7.5),
         ('PADDING', (0, 0), (-1, -1), 5),
-        ('GRID', (0, 0), (-1, -1), 0.3, CEREBRO_BORDER),
+        ('GRID', (0, 0), (-1, -1), 0.3, CEREBRO_TABLE_BORDER),
         ('ALIGN', (1, 0), (-1, -1), 'CENTER'),
         ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
     ]))
@@ -520,19 +554,19 @@ def generer_pdf_examens(session, cours_examens, timeline, recommandations):
         else:
             contenu = 'Repos / révision libre'
         timeline_data.append([
-            Paragraph(f'<b>{jour}</b>', styles['CerebroBody']),
-            Paragraph(contenu.replace('\n', '<br/>'), styles['CerebroBody']),
+            Paragraph(f'<b>{jour}</b>', styles['CerebroTableBody']),
+            Paragraph(contenu.replace('\n', '<br/>'), styles['CerebroTableBody']),
         ])
     tl_table = Table(timeline_data, colWidths=[3*cm, 15*cm])
     tl_table.setStyle(TableStyle([
         ('BACKGROUND', (0, 0), (-1, 0), CEREBRO_BLUE),
         ('TEXTCOLOR', (0, 0), (-1, 0), CEREBRO_WHITE),
         ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-        ('ROWBACKGROUNDS', (0, 1), (-1, -1), [CEREBRO_CARD2, CEREBRO_CARD]),
-        ('TEXTCOLOR', (0, 1), (-1, -1), CEREBRO_WHITE),
+        ('ROWBACKGROUNDS', (0, 1), (-1, -1), [CEREBRO_WHITE, CEREBRO_TABLE_ALT]),
+        ('TEXTCOLOR', (0, 1), (-1, -1), CEREBRO_TEXT),
         ('FONTSIZE', (0, 0), (-1, -1), 8.5),
         ('PADDING', (0, 0), (-1, -1), 6),
-        ('GRID', (0, 0), (-1, -1), 0.3, CEREBRO_BORDER),
+        ('GRID', (0, 0), (-1, -1), 0.3, CEREBRO_TABLE_BORDER),
         ('VALIGN', (0, 0), (-1, -1), 'TOP'),
     ]))
     elements.append(tl_table)
