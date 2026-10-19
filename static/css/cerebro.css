@@ -224,6 +224,7 @@ html, body {
 .stat-card {
     background: var(--dark-card2);
     border: 1px solid var(--dark-border2);
+    border-left: 4px solid var(--stat-color, var(--blue-primary));
     border-radius: 10px;
     padding: 16px;
 }
@@ -241,7 +242,7 @@ html, body {
     font-family: 'Space Grotesk', sans-serif;
     font-size: 28px;
     font-weight: 700;
-    color: var(--blue-primary);
+    color: var(--stat-color, var(--blue-primary));
     line-height: 1;
     margin-bottom: 4px;
 }
@@ -984,9 +985,60 @@ body.no-scroll { overflow: hidden; }
     z-index: 0;
 }
 
-.stat-card > * {
+.stat-card > :not(.stat-symbol) {
     position: relative;
     z-index: 1;
+}
+
+.dashboard-kpi.small-box {
+    height: 100%;
+    min-height: 140px;
+    margin-bottom: 0;
+}
+
+.dashboard-kpi .small-box-icon {
+    transition: none;
+}
+
+.dashboard-kpi:hover .small-box-icon {
+    transform: none;
+}
+
+.examen-compte-a-rebours {
+    padding: 0.35rem 0.75rem;
+    font-size: 1rem;
+    letter-spacing: normal;
+    text-transform: none;
+}
+
+.multi-course-title-icon {
+    display: inline-grid;
+    place-items: center;
+    width: 2rem;
+    height: 2rem;
+    flex: 0 0 auto;
+    border-radius: 0.6rem;
+    background: var(--sim-brand-soft, #edf1ff);
+    color: var(--sim-brand, #3559d8);
+}
+
+.course-row-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+
+.course-num {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.35rem 0.7rem;
+    border: 1px solid #dce4ff;
+    border-radius: 0.5rem;
+    background: var(--sim-brand-soft, #edf1ff);
+    color: var(--sim-brand, #3559d8);
+    font-size: 0.78rem;
+    font-weight: 700;
 }
 
 .cerebro-table {
