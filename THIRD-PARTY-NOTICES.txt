@@ -1,0 +1,23 @@
+Third-party software included in SimTemplate
+
+AdminLTE 4.10.0
+Copyright (c) 2014-2026 Colorlib
+License: MIT
+Website: https://adminlte.io
+The license banner is retained in assets/css/adminlte.min.css and assets/js/adminlte.min.js.
+
+Bootstrap Icons 1.13.1
+Copyright (c) The Bootstrap Authors
+License: MIT
+Website: https://icons.getbootstrap.com/
+The license notice is retained in assets/css/bootstrap-icons.min.css.
+
+Chart.js 4.5.1
+Copyright (c) 2025 Chart.js Contributors
+License: MIT
+Website: https://www.chartjs.org
+The license notice is retained in assets/js/chart.umd.min.js.
+
+The above projects are distributed under the MIT License. Their respective
+copyright and license notices are included in the corresponding files where
+provided by the upstream distributions.
